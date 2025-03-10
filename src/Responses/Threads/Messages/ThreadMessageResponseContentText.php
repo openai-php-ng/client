@@ -31,17 +31,18 @@ final class ThreadMessageResponseContentText implements ResponseContract
     /**
      * Acts as static factory, and returns a new Response instance.
      *
-     * @param  array{value: string, annotations: array<int, array{type: 'file_citation', text: string, file_citation: array{file_id: string, quote?: string}, start_index: int, end_index: int}|array{type: 'file_path', text: string, file_path: array{file_id: string}, start_index: int, end_index: int}>}  $attributes
+     * @param  array{value: string, annotations: array<int, array{type: 'file_citation', text: string, file_citation: array{file_id: string, quote?: string}, start_index: int, end_index: int}|array{type: 'file_path', text: string, file_path: array{file_id: string}, start_index: int, end_index: int}|array{type: 'other'}>}  $attributes
      */
     public static function from(array $attributes): self
     {
-        $annotations = array_map(
-            fn (array $annotation): ThreadMessageResponseContentTextAnnotationFileCitationObject|ThreadMessageResponseContentTextAnnotationFilePathObject => match ($annotation['type']) {
+        $annotations = array_filter(array_map(
+            fn (array $annotation): ThreadMessageResponseContentTextAnnotationFileCitationObject|ThreadMessageResponseContentTextAnnotationFilePathObject|null => match ($annotation['type']) {
                 'file_citation' => ThreadMessageResponseContentTextAnnotationFileCitationObject::from($annotation),
                 'file_path' => ThreadMessageResponseContentTextAnnotationFilePathObject::from($annotation),
+                default => null,
             },
             $attributes['annotations'],
-        );
+        ));
 
         return new self(
             $attributes['value'],

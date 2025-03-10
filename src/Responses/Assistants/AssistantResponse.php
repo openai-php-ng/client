@@ -48,18 +48,19 @@ final class AssistantResponse implements ResponseContract, ResponseHasMetaInform
     /**
      * Acts as static factory, and returns a new Response instance.
      *
-     * @param  array{id: string, object: string, created_at: int, name: ?string, description: ?string, model: string, instructions: ?string, tools: array<int, array{type: 'code_interpreter'}|array{type: 'file_search'}|array{type: 'function', function: array{description: ?string, name: string, parameters: array<string, mixed>}}>, tool_resources: ?array{code_interpreter?: array{file_ids: array<int,string>}, file_search?: array{vector_store_ids: array<int,string>}}, metadata: array<string, string>, temperature: ?float, top_p: ?float, response_format: string|array{type: 'text'|'json_object'}}  $attributes
+     * @param  array{id: string, object: string, created_at: int, name: ?string, description: ?string, model: string, instructions: ?string, tools: array<int, array{type: 'code_interpreter'}|array{type: 'file_search'}|array{type: 'function', function: array{description: ?string, name: string, parameters: array<string, mixed>}}|array{type: 'other'}>, tool_resources: ?array{code_interpreter?: array{file_ids: array<int,string>}, file_search?: array{vector_store_ids: array<int,string>}}, metadata: array<string, string>, temperature: ?float, top_p: ?float, response_format: string|array{type: 'text'|'json_object'}}  $attributes
      */
     public static function from(array $attributes, MetaInformation $meta): self
     {
-        $tools = array_map(
-            fn (array $tool): AssistantResponseToolCodeInterpreter|AssistantResponseToolFileSearch|AssistantResponseToolFunction => match ($tool['type']) {
+        $tools = array_filter(array_map(
+            fn (array $tool): AssistantResponseToolCodeInterpreter|AssistantResponseToolFileSearch|AssistantResponseToolFunction|null => match ($tool['type']) {
                 'code_interpreter' => AssistantResponseToolCodeInterpreter::from($tool),
                 'file_search' => AssistantResponseToolFileSearch::from($tool),
                 'function' => AssistantResponseToolFunction::from($tool),
+                default => null,
             },
             $attributes['tools'],
-        );
+        ));
 
         $responseFormat = is_array($attributes['response_format']) ?
             AssistantResponseResponseFormat::from($attributes['response_format']) :
