@@ -35,7 +35,7 @@ final class CreateStreamedResponse implements ResponseContract
     /**
      * Acts as static factory, and returns a new Response instance.
      *
-     * @param  array{id: string, object: string, created: int, model: string, choices: array<int, array{index: int, delta: array{role?: string, content?: string}, finish_reason: string|null}>, usage?: array{prompt_tokens: int, completion_tokens: int|null, total_tokens: int}}  $attributes
+     * @param  array{id: string|null, object: string|null, created: int|null, model: string, choices: array<int, array{index: int, delta: array{role?: string, content?: string}, finish_reason: string|null}>, usage?: array{prompt_tokens: int, completion_tokens: int|null, total_tokens: int}}  $attributes
      */
     public static function from(array $attributes): self
     {
@@ -44,9 +44,9 @@ final class CreateStreamedResponse implements ResponseContract
         ), $attributes['choices']);
 
         return new self(
-            $attributes['id'],
-            $attributes['object'],
-            $attributes['created'],
+            $attributes['id'] ?? '',
+            $attributes['object'] ?? 'chat.completions',
+            $attributes['created'] ?? time(),
             $attributes['model'],
             $choices,
             isset($attributes['usage']) ? CreateResponseUsage::from($attributes['usage']) : null,
