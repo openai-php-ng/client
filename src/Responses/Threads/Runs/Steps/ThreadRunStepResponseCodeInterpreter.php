@@ -35,13 +35,14 @@ final class ThreadRunStepResponseCodeInterpreter implements ResponseContract
      */
     public static function from(array $attributes): self
     {
-        $outputs = array_map(
+        $outputs = array_filter(array_map(
             fn (array $output): \OpenAI\Responses\Threads\Runs\Steps\ThreadRunStepResponseCodeInterpreterOutputImage|\OpenAI\Responses\Threads\Runs\Steps\ThreadRunStepResponseCodeInterpreterOutputLogs => match ($output['type']) {
                 'image' => ThreadRunStepResponseCodeInterpreterOutputImage::from($output),
                 'logs' => ThreadRunStepResponseCodeInterpreterOutputLogs::from($output),
+                default => null,
             },
             $attributes['outputs'] ?? [],
-        );
+        ));
 
         return new self(
             $attributes['input'] ?? null,

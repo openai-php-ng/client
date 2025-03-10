@@ -66,14 +66,15 @@ final class ThreadRunResponse implements ResponseContract, ResponseHasMetaInform
      */
     public static function from(array $attributes, MetaInformation $meta): self
     {
-        $tools = array_map(
+        $tools = array_filter(array_map(
             fn (array $tool): ThreadRunResponseToolCodeInterpreter|ThreadRunResponseFileSearch|ThreadRunResponseToolFunction => match ($tool['type']) {
                 'code_interpreter' => ThreadRunResponseToolCodeInterpreter::from($tool),
                 'file_search' => ThreadRunResponseFileSearch::from($tool),
                 'function' => ThreadRunResponseToolFunction::from($tool),
+                default => null,
             },
             $attributes['tools'],
-        );
+        ));
 
         $responseFormat = is_array($attributes['response_format']) ?
             AssistantResponseResponseFormat::from($attributes['response_format']) :

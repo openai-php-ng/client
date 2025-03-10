@@ -37,13 +37,14 @@ final class ThreadMessageDeltaObject implements ResponseContract
      */
     public static function from(array $attributes): self
     {
-        $content = array_map(
+        $content = array_filter(array_map(
             fn (array $content): ThreadMessageDeltaResponseContentTextObject|ThreadMessageDeltaResponseContentImageFileObject => match ($content['type']) {
                 'text' => ThreadMessageDeltaResponseContentTextObject::from($content),
                 'image_file' => ThreadMessageDeltaResponseContentImageFileObject::from($content),
+                default => null,
             },
             $attributes['content'],
-        );
+        ));
 
         return new self(
             $attributes['role'] ?? null,

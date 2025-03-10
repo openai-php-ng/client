@@ -36,14 +36,15 @@ final class ThreadRunStepResponseToolCallsStepDetails implements ResponseContrac
      */
     public static function from(array $attributes): self
     {
-        $toolCalls = array_map(
+        $toolCalls = array_filter(array_map(
             fn (array $toolCall): ThreadRunStepResponseCodeToolCall|ThreadRunStepResponseFileSearchToolCall|ThreadRunStepResponseFunctionToolCall => match ($toolCall['type']) {
                 'code_interpreter' => ThreadRunStepResponseCodeToolCall::from($toolCall),
                 'file_search' => ThreadRunStepResponseFileSearchToolCall::from($toolCall),
                 'function' => ThreadRunStepResponseFunctionToolCall::from($toolCall),
+                default => null,
             },
             $attributes['tool_calls'],
-        );
+        ));
 
         return new self(
             $attributes['type'],

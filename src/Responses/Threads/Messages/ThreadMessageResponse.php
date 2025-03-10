@@ -50,14 +50,15 @@ final class ThreadMessageResponse implements ResponseContract, ResponseHasMetaIn
      */
     public static function from(array $attributes, MetaInformation $meta): self
     {
-        $content = array_map(
+        $content = array_filter(array_map(
             fn (array $content): ThreadMessageResponseContentTextObject|ThreadMessageResponseContentImageFileObject|ThreadMessageResponseContentImageUrlObject => match ($content['type']) {
                 'text' => ThreadMessageResponseContentTextObject::from($content),
                 'image_file' => ThreadMessageResponseContentImageFileObject::from($content),
                 'image_url' => ThreadMessageResponseContentImageUrlObject::from($content),
+                default => null,
             },
             $attributes['content'],
-        );
+        ));
 
         $attachments = array_map(
             fn (array $attachment): ThreadMessageResponseAttachment => ThreadMessageResponseAttachment::from($attachment),

@@ -52,14 +52,15 @@ final class AssistantResponse implements ResponseContract, ResponseHasMetaInform
      */
     public static function from(array $attributes, MetaInformation $meta): self
     {
-        $tools = array_map(
+        $tools = array_filter(array_map(
             fn (array $tool): AssistantResponseToolCodeInterpreter|AssistantResponseToolFileSearch|AssistantResponseToolFunction => match ($tool['type']) {
                 'code_interpreter' => AssistantResponseToolCodeInterpreter::from($tool),
                 'file_search' => AssistantResponseToolFileSearch::from($tool),
                 'function' => AssistantResponseToolFunction::from($tool),
+                default => null,
             },
             $attributes['tools'],
-        );
+        ));
 
         $responseFormat = is_array($attributes['response_format']) ?
             AssistantResponseResponseFormat::from($attributes['response_format']) :

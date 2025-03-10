@@ -37,13 +37,14 @@ final class ThreadMessageDeltaResponseContentText implements ResponseContract
      */
     public static function from(array $attributes): self
     {
-        $annotations = array_map(
+        $annotations = array_filter(array_map(
             fn (array $annotation): ThreadMessageResponseContentTextAnnotationFileCitationObject|ThreadMessageResponseContentTextAnnotationFilePathObject => match ($annotation['type']) {
                 'file_citation' => ThreadMessageResponseContentTextAnnotationFileCitationObject::from($annotation),
                 'file_path' => ThreadMessageResponseContentTextAnnotationFilePathObject::from($annotation),
+                default => null,
             },
             $attributes['annotations'] ?? [],
-        );
+        ));
 
         return new self(
             $attributes['value'] ?? null,
