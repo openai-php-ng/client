@@ -32,18 +32,19 @@ final class ThreadRunStepResponseToolCallsStepDetails implements ResponseContrac
     /**
      * Acts as static factory, and returns a new Response instance.
      *
-     * @param  array{type: 'tool_calls', tool_calls: array<int, array{id?: string, type: 'code_interpreter', code_interpreter: array{input: string, outputs?: array<int, array{type: 'image', image: array{file_id: string}}|array{type: 'logs', logs: string}>}}|array{id: string, type: 'file_search', file_search: array<string, string>}|array{id?: string, type: 'function', function: array{name?: string, arguments: string, output?: ?string}}>}  $attributes
+     * @param  array{type: 'tool_calls', tool_calls: array<int, array{id?: string, type: 'code_interpreter', code_interpreter: array{input: string, outputs?: array<int, array{type: 'image', image: array{file_id: string}}|array{type: 'logs', logs: string}>}}|array{id: string, type: 'file_search', file_search: array<string, string>}|array{id?: string, type: 'function', function: array{name?: string, arguments: string, output?: ?string}}|array{type: 'other'}>}  $attributes
      */
     public static function from(array $attributes): self
     {
-        $toolCalls = array_map(
-            fn (array $toolCall): ThreadRunStepResponseCodeToolCall|ThreadRunStepResponseFileSearchToolCall|ThreadRunStepResponseFunctionToolCall => match ($toolCall['type']) {
+        $toolCalls = array_filter(array_map(
+            fn (array $toolCall): ThreadRunStepResponseCodeToolCall|ThreadRunStepResponseFileSearchToolCall|ThreadRunStepResponseFunctionToolCall|null => match ($toolCall['type']) {
                 'code_interpreter' => ThreadRunStepResponseCodeToolCall::from($toolCall),
                 'file_search' => ThreadRunStepResponseFileSearchToolCall::from($toolCall),
                 'function' => ThreadRunStepResponseFunctionToolCall::from($toolCall),
+                default => null,
             },
             $attributes['tool_calls'],
-        );
+        ));
 
         return new self(
             $attributes['type'],
